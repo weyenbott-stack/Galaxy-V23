@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GALAXY V23 - GARIL ATTACKER</title>
+<style>
+  :root{
+    --bg:#060006;
+    --panel:#120616;
+    --neon1: #d86bff;
+    --neon2: #ff2b72;
+    --muted: rgba(255,255,255,0.08);
+    --white: #fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:linear-gradient(180deg,#040005 0%, #030008 60%);
+    color:var(--white);
+    font-family: Inter, Roboto, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;justify-content:center;align-items:flex-start;padding-top:10px;
+  }
+
+  /* ---------- Phone frame size like Android ---------- */
+  .phone{
+    width:420px; max-width:96%; min-height:820px; height:94vh; position:relative;
+    overflow:hidden; border-radius:8px; background:transparent;
+  }
+
+  /* ---------- Galaxy background: stars + rotating planet ---------- */
+  .bg-wrap{position:absolute;inset:0;z-index:0;overflow:hidden}
+  .stars{
+    position:absolute;inset:0;background:
+      radial-gradient(#fff 1px, transparent 1px),
+      radial-gradient(#fff 1px, transparent 1px);
+    background-size: 3px 3px, 2px 2px;
+    opacity:0.06; animation: drift 40s linear infinite;
+    filter:blur(0.5px);
+  }
+  @keyframes drift{ from{transform:translateY(0)} to{transform:translateY(-300px)} }
+
+  .planet{
+    position:absolute;left:50%;top:18%;width:900px;height:900px;margin-left:-450px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,80,120,0.12), transparent 12%),
+                radial-gradient(circle at 70% 60%, rgba(120,40,255,0.08), transparent 20%),
+                conic-gradient(rgba(255,0,100,0.02), rgba(0,0,0,0.02));
+    transform-origin:center center;
+    opacity:0.12; animation: spin 120s linear infinite;
+  }
+  @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  /* ---------- Top status bar mimic ---------- */
+  .statusbar{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:center;z-index:8;color:#bbb;font-size:12px;pointer-events:none}
+  .statusbar .left,.statusbar .right{opacity:0.9}
+
+  /* ---------- LOGIN PAGE ---------- */
+  .login-screen{position:relative;z-index:6;height:100%;display:flex;flex-direction:column;align-items:center;padding:36px 26px;transition:opacity .35s ease}
+  .hero{
+    width:260px;height:240px;border-radius:8px;background:#0a0a0a;overflow:hidden;border:1px solid rgba(255,255,255,0.03);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(200,20,200,0.06);
+  }
+  .hero img{width:100%;height:100%;object-fit:cover;filter:contrast(1.02)brightness(0.95)}
+  .please { margin-top:14px; font-style:italic; letter-spacing:4px; color:rgba(230,200,255,0.95); font-size:20px; }
+  .form{width:100%;max-width:360px;margin-top:18px;display:flex;flex-direction:column;gap:18px}
+  .field input{
+    width:100%; padding:16px 20px; border-radius:28px; border:2px solid rgba(255,255,255,0.95);
+    background:transparent; color:var(--white); font-size:16px; outline:none; letter-spacing:1px;
+  }
+  .field input::placeholder{ color:rgba(255,255,255,0.45) }
+  .login-btn{
+    margin:18px auto 6px auto; width:72%; max-width:320px; padding:16px 26px; border-radius:40px;
+    background:var(--white); color:var(--neon1); font-weight:700; letter-spacing:4px; border:none; cursor:pointer;
+    box-shadow:0 12px 30px rgba(150,20,200,0.12); font-size:18px;
+  }
+  .msg{color:#ff7aa8;text-align:center;min-height:18px;margin-top:8px}
+
+  /* ---------- DASHBOARD ---------- */
+  .app{display:none;position:relative;z-index:6;height:100%;display:flex;flex-direction:column;padding:12px 12px 92px 12px;gap:12px;transition:opacity .28s ease}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px}
+  .hamburger{width:46px;height:46px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(200,100,255,0.06)}
+  .title{font-weight:800;color:transparent;background:linear-gradient(90deg,var(--neon1),var(--neon2));-webkit-background-clip:text;font-size:18px;letter-spacing:2px}
+  .profile-circle{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+
+  .banner{height:110px;border-radius:12px;background:linear-gradient(90deg, rgba(255,0,90,0.06), rgba(80,0,255,0.04));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#ffd8ff;letter-spacing:1px;border:1px solid rgba(200,120,255,0.05);box-shadow:0 10px 40px rgba(160,30,255,0.04)}
+  .icon-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+  .icon-btn{flex:1 0 22%;min-width:72px;height:86px;border-radius:12px;background:rgba(255,255,255,0.02);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(150,100,255,0.04);box-shadow:0 6px 22px rgba(120,10,120,0.03)}
+  .icon-btn .ico{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(200,100,255,0.06)}
+  .icon-btn small{font-size:11px;margin-top:8px;color:#d9b9ff}
+
+  .server-stats{margin-top:12px;border-radius:12px;padding:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(160,80,200,0.04);position:relative}
+  .server-stats h4{color:var(--neon1);font-size:15px;margin-bottom:8px}
+
+  /* back btn above server-stats (left corner) */
+  #globalBack {
+    position:absolute; left:12px; top:-40px; width:44px; height:36px; border-radius:8px; border:1px solid rgba(255,255,255,0.04);
+    background:transparent; color:var(--neon1); display:none; align-items:center; justify-content:center; cursor:pointer; z-index:9;
+  }
+
+  /* ---------- bottom nav ---------- */
+  .bottom-nav{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:94%;max-width:980px;padding:8px;display:flex;justify-content:space-around;gap:6px;z-index:7}
+  .nav-item{flex:1;background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);padding:8px;border-radius:10px;text-align:center;cursor:pointer;border:1px solid rgba(150,100,255,0.04)}
+  .nav-item .label{font-size:11px;color:#d8b1ff}
+
+  /* ---------- feature full-view mode ---------- */
+  .feature-mode .banner, .feature-mode .icon-grid, .feature-mode .bottom-nav { display:none !important; }
+  .feature-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .back-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--neon1);cursor:pointer}
+
+  /* ---------- forms inside features ---------- */
+  .attack-panel{display:flex;flex-direction:column;gap:8px}
+  .attack-row{display:flex;gap:8px}
+  .attack-row input, .attack-row select{flex:1;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(0,0,0,0.35);color:#fff}
+  .send-btn{padding:12px;border-radius:12px;border:none;font-weight:800;background:linear-gradient(90deg,var(--neon2),var(--neon1));color:#fff;cursor:pointer}
+
+  /* neo loader */
+  .neo-loader{display:inline-flex;gap:6px}
+  .neo-loader .block{width:10px;height:22px;border-radius:3px;background:transparent;border:1px solid rgba(255,0,60,0.9);box-shadow:0 0 12px rgba(255,0,80,0.6);opacity:0.12;transform:translateY(8px)}
+  .neo-loader.playing .block{animation:neo 900ms linear infinite}
+  .neo-loader.playing .block:nth-child(2){animation-delay:80ms}
+  .neo-loader.playing .block:nth-child(3){animation-delay:160ms}
+  .neo-loader.playing .block:nth-child(4){animation-delay:240ms}
+  .neo-loader.playing .block:nth-child(5){animation-delay:320ms}
+  @keyframes neo{0%{transform:translateY(8px);opacity:0.12}50%{transform:translateY(-8px);opacity:1}100%{transform:translateY(8px);opacity:0.12}}
+
+  /* chat */
+  .chat-log{height:220px;overflow:auto;padding:8px;border-radius:8px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.03)}
+  .chat-line{margin-bottom:8px;font-size:13px}
+  .from-user{color:#ffd9f8}
+  .from-bot{color:#d0c0ff;margin-left:6px}
+
+  /* profile 300x300 box */
+  .code-box{width:300px;height:300px;border-radius:6px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.18));border:1px solid rgba(200,140,255,0.06);overflow:hidden;position:relative;box-shadow:0 10px 40px rgba(170,20,200,0.06)}
+  .marq{position:absolute;white-space:nowrap;animation:marq 8s linear infinite;font-family:monospace;color:var(--neon1);font-size:16px}
+  @keyframes marq{0%{left:100%}100%{left:-220%}}
+
+  /* modal about app */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:999;background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.85))}
+  .modal .card{width:88%;max-width:420px;padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(20,6,40,0.95), rgba(6,2,12,0.98));border:1px solid rgba(200,120,255,0.06)}
+  .modal h3{color:var(--neon1);margin-bottom:8px}
+  .modal p{color:#d7c7ee;font-size:14px;line-height:1.5}
+
+  /* music controls inside feature - small style */
+  .music-controls { display:flex; gap:10px; align-items:center; }
+  .small-btn { padding:10px 14px;border-radius:10px;border:none; background:linear-gradient(90deg,var(--neon2),var(--neon1)); color:#fff; cursor:pointer; }
+
+  /* small responsive */
+  @media (max-width:420px){
+    .phone{width:360px}
+  }
+
+</style>
+</head>
+<body>
+  <div class="phone" role="application">
+    <div class="bg-wrap" aria-hidden="true">
+      <div class="stars"></div>
+      <div class="planet"></div>
+    </div>
+
+    <div class="statusbar" aria-hidden="true">
+      <div class="left">4G • 08:08</div>
+      <div class="right">LTE2 56%</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginView" class="login-screen" aria-labelledby="loginTitle">
+      <div class="hero" aria-hidden="true">
+        <!-- user-supplied hero image -->
+        <img id="heroImg" src="https://files.catbox.moe/xt3ax5.jpeg" alt="hero"/>
+      </div>
+
+      <div id="loginTitle" class="please">Please Log-in To Your Account</div>
+
+      <form id="loginForm" class="form" autocomplete="off" onsubmit="return false;">
+        <div class="field">
+          <input id="username" type="text" placeholder="Username" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <input id="password" type="password" placeholder="Password" autocomplete="off" required />
+        </div>
+
+        <button id="btnLogin" class="login-btn" type="button">LOGIN</button>
+        <div class="msg" id="loginMsg" role="status" aria-live="polite"></div>
+      </form>
+      <div style="flex:1"></div>
+    </div>
+
+    <!-- APP / DASHBOARD -->
+    <div id="appView" class="app" aria-hidden="true">
+      <div class="topbar">
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="hamburger" id="btnMenu" title="Menu">☰</div>
+        </div>
+        <div style="text-align:center">
+          <div class="title">GALAXY V23</div>
+          <div style="font-size:11px;color:rgba(200,160,255,0.9)">GARIL ATTACKER</div>
+        </div>
+        <div class="profile-circle" id="openProfileBtn" title="Profile">👤</div>
+      </div>
+
+      <div class="banner">GALAXY V23 - Explore the neon galaxy</div>
+
+      <div class="card icon-grid" style="padding:12px;">
+        <div class="icon-btn" id="openAttack"><div class="ico">⚡</div><small>ATTACK</small></div>
+        <div class="icon-btn" id="openMusic"><div class="ico">🎵</div><small>MUSIK</small></div>
+        <div class="icon-btn" id="openIP"><div class="ico">🌐</div><small>CEK IP</small></div>
+        <div class="icon-btn" id="openYT"><div class="ico">🔼</div><small>YOUTUBE</small></div>
+
+        <div class="icon-btn" id="openChat"><div class="ico">🤖</div><small>CHAT AI</small></div>
+        <div class="icon-btn" id="openProfile2"><div class="ico">👤</div><small>PROFILE</small></div>
+        <div class="icon-btn" id="openDev"><div class="ico">💌</div><small>DEVELOPER</small></div>
+        <div class="icon-btn" id="logoutBtn"><div class="ico">🔙</div><small>LOGOUT</small></div>
+      </div>
+
+      <div class="server-stats card" style="margin-top:8px">
+        <!-- global back button above server-stats (hidden until feature open) -->
+        <button id="globalBack" title="Kembali">𝐊𝐄𝐌𝐁𝐀𝐋𝚰</button>
+
+        <h4>Server Stats</h4>
+        <div style="padding:8px;background:rgba(0,0,0,0.12);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between">
+          <div>Online Users</div><div id="onlineUsers">12</div>
+        </div>
+        <div style="padding:8px;background:rgba(0,0,0,0.12);border-radius:8px;display:flex;justify-content:space-between">
+          <div>Active Sender</div><div id="activeSender">4</div>
+        </div>
+      </div>
+
+      <!-- main dynamic pane (features load here) -->
+      <div id="mainPane" class="card" style="flex:1;margin-top:8px;overflow:auto;padding:12px"></div>
+
+      <div class="bottom-nav">
+        <div class="nav-item" id="navAttack"><div>⚡</div><div class="label">ATTACK MENU</div></div>
+        <div class="nav-item" id="navMusic2"><div>🎵</div><div class="label">MUSIK</div></div>
+        <div class="nav-item" id="navIP2"><div>🌐</div><div class="label">CEK IP</div></div>
+        <div class="nav-item" id="navYT2"><div>🔼</div><div class="label">YOUTUBE</div></div>
+        <div class="nav-item" id="navChat2"><div>🤖</div><div class="label">CHAT AI</div></div>
+      </div>
+    </div>
+
+    <!-- ABOUT modal -->
+    <div id="aboutModal" class="modal" role="dialog" aria-modal="true">
+      <div class="card">
+        <h3>🔱 GARILATTACKER 🔱</h3>
+        <p><strong>Versi:</strong> V23</p>
+        <p><strong>Developer:</strong> Garil_Ramdhan</p>
+        <p>GALAXY V23 (GARIL ATTACKER) — tema galaksi, neon attack tools, musik, chat AI simulasi. Gunakan fitur ini Untuk Membantu/Mencari Uang Jangan Di Salahgunakan.</p>
+        <p style="margin-top:8px;color:var(--neon1)">Kontak developer: <a href="https://t.me/GarielGeri" target="_blank" style="color:var(--neon1)">t.me/GarielGeri</a></p>
+        <div style="text-align:right;margin-top:6px"><button id="closeAbout" class="back-btn" style="border-radius:8px;padding:8px 12px">Close</button></div>
+      </div>
+    </div>
+
+    <!-- Audio disiapkan -->
+<audio id="bgAudio" src="https://files.catbox.moe/ht94wh.mp4" loop preload="none"></audio>
+
+  </div>
+
+<script>
+/* ---------- Login logic ---------- */
+const LOGIN_USER = 'Attack';
+const LOGIN_PASS = 'Garil123';
+
+const loginView = document.getElementById('loginView');
+const appView = document.getElementById('appView');
+const loginMsg = document.getElementById('loginMsg');
+const btnLogin = document.getElementById('btnLogin');
+
+function showApp(){
+  loginView.style.display='none';
+  appView.style.display='flex';
+  loadDashboard();
+}
+function showLogin(){
+  appView.style.display='none';
+  loginView.style.display='flex';
+  document.getElementById('username').value='';
+  document.getElementById('password').value='';
+  loginMsg.textContent='';
+  document.getElementById('mainPane').innerHTML='';
+  hideGlobalBack();
+}
+
+btnLogin.addEventListener('click', ()=>{
+  const u = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  if(u === LOGIN_USER && p === LOGIN_PASS){
+    showApp();
+  } else {
+    loginMsg.textContent = 'Username atau Password salah.';
+    document.querySelector('.phone').animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],{duration:240});
+  }
+});
+['username','password'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ btnLogin.click(); e.preventDefault(); }
+  });
+});
+
+/* ---------- About modal ---------- */
+document.getElementById('btnMenu').addEventListener('click', ()=>{ document.getElementById('aboutModal').style.display='flex'; });
+document.getElementById('closeAbout').addEventListener('click', ()=>{ document.getElementById('aboutModal').style.display='none'; });
+document.getElementById('aboutModal').addEventListener('click', (e)=>{ if(e.target===document.getElementById('aboutModal')) document.getElementById('aboutModal').style.display='none'; });
+
+/* ---------- Feature navigation & global back ---------- */
+const mainPane = document.getElementById('mainPane');
+const phone = document.querySelector('.phone');
+let historyArr = [];
+
+function loadDashboard(){
+  mainPane.innerHTML = `
+    <h3 style="color:var(--neon1);margin-bottom:8px">Welcome to GALAXY V23</h3>
+    <div style="color:#d6c3ff">Pilih fitur di atas atau di menu bawah.</div>
+  `;
+  hideGlobalBack();
+}
+
+/* Global back button (above server-stats) handling */
+const globalBack = document.getElementById('globalBack');
+function showGlobalBack(){ globalBack.style.display='flex'; }
+function hideGlobalBack(){ globalBack.style.display='none'; }
+globalBack.addEventListener('click', ()=>{ closeFeature(); });
+
+/* openFeature / closeFeature */
+function openFeature(name){
+  phone.classList.add('feature-mode');
+  document.getElementById('btnMenu').style.display='none';
+  showGlobalBack();
+  mainPane.innerHTML = `
+    <div class="feature-header">
+      <button class="back-btn" id="featBack"></button>
+      <h3 style="margin-left:8px;color:var(--neon1);text-transform:uppercase">${name}</h3>
+    </div>
+    <div id="featContent"></div>
+  `;
+  document.getElementById('featBack').addEventListener('click', ()=>{ closeFeature(); });
+  switch(name){
+    case 'Attack': loadAttack(); break;
+    case 'Musik': loadMusic(); break;
+    case 'Cek IP': loadIP(); break;
+    case 'YouTube': openYT(); break;
+    case 'Chat AI': loadChat(); break;
+    case 'Profile': loadProfile(); break;
+    case 'Developer': window.open('https://t.me/GarielGeri','_blank'); closeFeature(); break;
+    case 'Logout':
+      if(confirm('Keluar aplikasi?')){ showLogin(); phone.classList.remove('feature-mode'); document.getElementById('btnMenu').style.display='block'; }
+      else closeFeature();
+      break;
+    default: document.getElementById('featContent').innerHTML = '<div>Fitur belum tersedia</div>';
+  }
+}
+function closeFeature(){
+  phone.classList.remove('feature-mode');
+  document.getElementById('btnMenu').style.display='block';
+  hideGlobalBack();
+  loadDashboard();
+}
+
+/* ---------- Attach events to icons and bottom nav ---------- */
+document.getElementById('openAttack').addEventListener('click', ()=>openFeature('Attack'));
+document.getElementById('navAttack').addEventListener('click', ()=>openFeature('Attack'));
+
+document.getElementById('openMusic').addEventListener('click', ()=>openFeature('Musik'));
+document.getElementById('navMusic2').addEventListener('click', ()=>openFeature('Musik'));
+
+document.getElementById('openIP').addEventListener('click', ()=>openFeature('Cek IP'));
+document.getElementById('navIP2').addEventListener('click', ()=>openFeature('Cek IP'));
+
+document.getElementById('openYT').addEventListener('click', ()=>openFeature('YouTube'));
+document.getElementById('navYT2').addEventListener('click', ()=>openFeature('YouTube'));
+
+document.getElementById('openChat').addEventListener('click', ()=>openFeature('Chat AI'));
+document.getElementById('navChat2').addEventListener('click', ()=>openFeature('Chat AI'));
+
+document.getElementById('openProfileBtn').addEventListener('click', ()=>openFeature('Profile'));
+document.getElementById('openProfile2').addEventListener('click', ()=>openFeature('Profile'));
+
+document.getElementById('openDev').addEventListener('click', ()=>openFeature('Developer'));
+document.getElementById('logoutBtn').addEventListener('click', ()=>openFeature('Logout'));
+
+/* ---------- Attack feature ---------- */
+function loadAttack(){
+  const content = document.getElementById('featContent');
+  content.innerHTML = `
+    <div class="attack-panel">
+      <div class="attack-row"><input id="attackTarget" placeholder="Masukkan nomor WhatsApp target (+628...)"></div>
+      <div class="attack-row"><select id="attackMode"><option>Attack V4</option><option>Stuck Logo</option><option>Forclose V2</option><option>CRASH UI</option><option>Brutality Easy</option></select></div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:6px">
+        <div class="neo-loader" id="neoLoader"><div class="block"></div><div class="block"></div><div class="block"></div><div class="block"></div><div class="block"></div></div>
+        <button id="sendBtn" class="send-btn">Send To Target</button>
+      </div>
+      <div id="attackHint" style="margin-top:8px;color:#ffc0e3">Status: Siap</div>
+      <div style="margin-top:12px"><strong>History nomor yang di Attack</strong></div>
+      <div class="history" id="attackHistory" style="margin-top:8px;max-height:160px;overflow:auto;background:rgba(0,0,0,0.12);padding:8px;border-radius:8px">Belum ada aksi.</div>
+    </div>
+  `;
+  document.getElementById('sendBtn').addEventListener('click', sendAttack);
+  renderHistory();
+}
+function sendAttack(){
+  const target = document.getElementById('attackTarget').value.trim();
+  const mode = document.getElementById('attackMode').value;
+  const hint = document.getElementById('attackHint');
+  const loader = document.getElementById('neoLoader');
+  if(!target){ alert('Masukkan nomor target!'); return; }
+  const exists = historyArr.some(it => it.includes(` • ${target} •`));
+  if(exists){
+    hint.textContent = 'NOMOR SUDAH 💀';
+    toast('NOMOR SUDAH 💀 — '+target);
+    return;
+  }
+  loader.classList.add('playing');
+  hint.textContent = 'Mengirim... (menjalankan Trojan)';
+  setTimeout(()=>{
+    loader.classList.remove('playing');
+    hint.textContent = 'SUCCESS SEND BUG 😈';
+    toast('SUCCCES SEND BUG 😈 ke '+target);
+    const t = new Date().toLocaleString();
+    historyArr.unshift(`${t} • ${target} • ${mode}`);
+    renderHistory();
+  }, 2000 + Math.floor(Math.random()*1600));
+}
+function renderHistory(){
+  const el = document.getElementById('attackHistory');
+  if(!el) return;
+  if(historyArr.length===0) el.innerHTML='Belum ada aksi.';
+  else el.innerHTML = historyArr.map(x=>`<div style="padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)">${x}</div>`).join('');
+}
+
+// ----------------- Musik 🎵 -----------------
+const playBtn = document.getElementById('playMusic');
+const stopBtn = document.getElementById('stopMusic');
+
+// buat elemen audio
+const audio = new Audio('https://files.catbox.moe/ht94wh.mp4');
+audio.loop = true; // ulang terus
+let musicPlaying = false;
+
+playBtn.onclick = ()=>{
+  audio.play();
+  musicPlaying = true;
+  playBtn.style.display='none';
+  stopBtn.style.display='inline-block';
+};
+
+stopBtn.onclick = ()=>{
+  audio.pause();
+  audio.currentTime = 0;
+  musicPlaying = false;
+  playBtn.style.display='inline-block';
+  stopBtn.style.display='none';
+};
+
+/* ---------- Cek IP / Telegram ---------- */
+function loadIP(){
+  document.getElementById('featContent').innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="tgUser" placeholder="Masukan Username Telegram anda" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(0,0,0,0.35);color:#fff">
+      <button id="cekBtn" class="send-btn">Cek ID</button>
+    </div>
+    <div style="margin-top:10px" class="card"><strong>Telegram ID:</strong> <span id="tgId">-</span>
+      <div style="font-size:13px;color:#d7c7ee;margin-top:6px">Catatan: Berikut Hasil ID Anda </div>
+    </div>
+  `;
+  document.getElementById('cekBtn').addEventListener('click', ()=>{
+    const u = document.getElementById('tgUser').value.trim();
+    if(!u){ alert('Masukkan username telegram!'); return; }
+    const username = u.replace('https://t.me/','').replace('t.me/','').replace('@','').trim();
+    if(!username){ alert('Username tidak valid'); return; }
+    const id = Math.abs(hashCode(username)).toString().slice(0,10);
+    document.getElementById('tgId').textContent = id;
+    toast('Telegram ID untuk '+username+' → '+id);
+  });
+}
+function hashCode(str){ let h=0; for(let i=0;i<str.length;i++){ h=((h<<5)-h)+str.charCodeAt(i); h|=0; } return h; }
+
+/* ---------- YouTube ---------- */
+function openYT(){
+  document.getElementById('featContent').innerHTML = `<div>Membuka YouTube...</div><div style="margin-top:8px"><button id="openYTBtn" class="send-btn">Buka YouTube</button></div>`;
+  document.getElementById('openYTBtn').addEventListener('click', ()=>{
+    window.location.href = 'vnd.youtube://';
+    setTimeout(()=>{ window.open('https://https://youtube.com/@ramdhanofficialgz?si=HIc2WMB4Y_uam19A/','_blank'); }, 500);
+  });
+}
+
+/* ---------- Chat AI (simulated Gemini) ---------- */
+function loadChat(){
+  document.getElementById('featContent').innerHTML = `
+    <div class="chat-window">
+      <div class="chat-log" id="chatLog"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="chatInput" placeholder="Ketik pesan..." style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(0,0,0,0.35);color:#fff">
+        <button id="sendChatBtn" class="send-btn">Kirim</button>
+      </div>
+    </div>
+  `;
+  const log = document.getElementById('chatLog');
+  const input = document.getElementById('chatInput');
+  function addLine(who, txt){
+    const d = document.createElement('div'); d.className='chat-line';
+    d.innerHTML = `<span class="${who==='user'?'from-user':'from-bot'}">${who==='user'?'You':'GeminiBot'}:</span> <span style="opacity:0.95">${escapeHtml(txt)}</span>`;
+    log.appendChild(d); log.scrollTop = log.scrollHeight;
+  }
+  document.getElementById('sendChatBtn').addEventListener('click', ()=>{
+    const t = input.value.trim(); if(!t) return; addLine('user', t); input.value='';
+    setTimeout(()=>{ addLine('bot', aiReply(t)); }, 700 + Math.random()*900);
+  });
+}
+function aiReply(text){
+  const t = text.toLowerCase();
+  if(t.includes('halo')||t.includes('hi')) return 'Halo! Ada yang bisa saya bantu?';
+  if(t.includes('siapa')&&t.includes('kamu')) return 'Saya Gemini-Sim, asisten GALAXY V23.';
+  if(t.includes('attack')) return 'Fitur Attack tersedia pada menu Attack. Gunakan dengan bijak.';
+  if(t.includes('musik')) return 'Buka menu Musik untuk memainkan audio.';
+  if(t.includes('developer')||t.includes('kontak')) return 'Hubungi developer: https://t.me/GarielGeri';
+  return 'Balasan otomatis: "'+text+'". (Simulasi AI)';
+}
+
+/* ---------- Profile view (300x300 slot-like) ---------- */
+function loadProfile(){
+  document.getElementById('featContent').innerHTML = `
+    <h3 style="color:var(--neon1)">Profil Aplikasi</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:1;min-width:220px">
+        <div style="padding:10px;border-radius:8px;background:rgba(0,0,0,0.2)">
+          <div><strong>Nama Aplikasi</strong><div>GALAXY V23</div></div>
+          <div style="margin-top:8px"><strong>Label</strong><div>GARIL ATTACKER</div></div>
+          <div style="margin-top:8px"><strong>Tanggal Rilis </strong><div>Minggu 02 November 2025.</div></div>
+        </div>
+      </div>
+      <div style="width:320px">
+        <div class="code-box">
+          <div class="marq">&lt;init&gt; // booting galaxy system... || attack.queue = [] || music.play(); || ai.init(); || contact: t.me/GarielGeri</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px"><strong>History nomor yang di Attack</strong></div>
+    <div class="history" id="profileHistory" style="margin-top:8px;max-height:160px;overflow:auto;background:rgba(0,0,0,0.12);padding:8px;border-radius:8px">Belum ada history.</div>
+  `;
+  const el = document.getElementById('profileHistory');
+  if(historyArr.length===0) el.innerHTML='Belum ada history.';
+  else el.innerHTML = historyArr.map(x=>`<div style="padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)">${x}</div>`).join('');
+}
+
+/* ---------- Utilities ---------- */
+function escapeHtml(s){ return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg){
+  const d = document.createElement('div');
+  d.textContent = msg;
+  d.style.position='fixed';d.style.left='50%';d.style.transform='translateX(-50%)';
+  d.style.bottom='110px';d.style.padding='10px 14px';d.style.background='linear-gradient(90deg,#d86bff,#ff3d72)';
+  d.style.borderRadius='10px';d.style.color='#fff';d.style.zIndex=9999;d.style.boxShadow='0 8px 32px rgba(0,0,0,0.6)';
+  document.body.appendChild(d);
+  setTimeout(()=>d.style.opacity='0.01',2000);
+  setTimeout(()=>d.remove(),2600);
+}
+
+/* ---------- keep history synced ---------- */
+setInterval(()=>{
+  const ph = document.getElementById('profileHistory');
+  if(ph){
+    if(historyArr.length===0) ph.innerHTML='Belum ada history.';
+    else ph.innerHTML = historyArr.map(x=>`<div style="padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)">${x}</div>`).join('');
+  }
+  const ah = document.getElementById('attackHistory');
+  if(ah){
+    if(historyArr.length===0) ah.innerHTML='Belum ada aksi.';
+    else ah.innerHTML = historyArr.map(x=>`<div style="padding:6px;border-bottom:1px dashed rgba(255,255,255,0.03)">${x}</div>`).join('');
+  }
+}, 700);
+
+/* ---------- small accessibility: Enter triggers login ---------- */
+document.getElementById('password').addEventListener('keyup', (e)=>{ if(e.key==='Enter') btnLogin.click(); });
+
+/* ---------- initialize with login view visible ---------- */
+showLogin();
+</script>
+</body>
+</html>
